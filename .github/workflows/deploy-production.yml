@@ -23,14 +23,22 @@ jobs:
           POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_DB=${{ secrets.POSTGRES_DB }}
           DATABASE_URL=postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@postgres:5432/${{ secrets.POSTGRES_DB }}
-          ADMIN_TOKEN='${{ secrets.VAULT_ADMIN_TOKEN }}'
+          ADMIN_TOKEN='${{ secrets.ADMIN_TOKEN }}'
           # SMTP (optional, used for password reset / email verification)
           SMTP_HOST=${{ secrets.SMTP_HOST }}
           SMTP_PORT=${{ secrets.SMTP_PORT }}
           SMTP_USERNAME=${{ secrets.SMTP_USERNAME }}
           SMTP_PASSWORD=${{ secrets.SMTP_PASSWORD }}
           SMTP_FROM=${{ secrets.SMTP_FROM }}
+          SMTP_REPLY_TO=${{ secrets.SMTP_FROM }}
           SMTP_SECURITY=${{ secrets.SMTP_SECURITY }}
+          # Security and configuration
+          HTTP_REQUEST_BLOCK_NON_GLOBAL_IPS=true
+          ICON_SERVICE=internal
+          ENABLE_DB_WAL=true
+          ADMIN_SESSION_LIFETIME=20
+          SIGNUPS_ALLOWED=false
+          LOG_LEVEL=info
           RUST_BACKTRACE=1
           EOF
 
@@ -52,4 +60,11 @@ jobs:
             cd ${{ secrets.HETZNER_PROJECT_PATH }} &&
             docker compose pull &&
             docker compose up -d --build
+          '
+
+      - name: Clean up .env file on server
+        run: |
+          sshpass -p "${{ secrets.HETZNER_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.HETZNER_USER }}@${{ secrets.HETZNER_HOST }} '
+            cd ${{ secrets.HETZNER_PROJECT_PATH }} &&
+            rm -f .env
           '

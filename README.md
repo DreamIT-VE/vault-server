@@ -194,7 +194,8 @@ docker compose exec postgres psql -U vaultwarden_admin -d vaultwarden_db
 
 ## 📝 Notes
 
-- First user to sign up becomes the admin (if `SIGNUPS_ALLOWED=true`)
+- Access the admin panel at `https://yourdomain.com/admin` using the `ADMIN_TOKEN`
+- To create users, temporarily enable `SIGNUPS_ALLOWED=true` in the admin panel or invite users via email
 - Data persists in Docker volumes
 - Automatic updates are enabled in production
 - WebSocket notifications require HTTPS
