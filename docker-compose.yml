@@ -1,5 +1,3 @@
-version: '3.8'
-
 networks:
   vault_net:
     driver: bridge
@@ -26,7 +24,7 @@ services:
       - vault_net
 
   vaultwarden:
-    image: ghcr.io/dani-garcia/vaultwarden/server:latest
+    image: vaultwarden/server:latest
     container_name: vaultwarden
     restart: unless-stopped
     env_file:
