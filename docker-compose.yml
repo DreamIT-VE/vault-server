@@ -1,0 +1,72 @@
+version: '3.8'
+
+networks:
+  vault_net:
+    driver: bridge
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: vault_db
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - vault_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL","pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - vault_net
+
+  vaultwarden:
+    image: ghcr.io/dani-garcia/vaultwarden/server:latest
+    container_name: vaultwarden
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - DOMAIN=${DOMAIN}
+      - DATABASE_URL=${DATABASE_URL}
+      - ADMIN_TOKEN=${ADMIN_TOKEN}
+      - RUST_BACKTRACE=1
+      # Optional SMTP envs (only set if you provided them in .env via workflow/secrets)
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USERNAME=${SMTP_USERNAME}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - SMTP_FROM=${SMTP_FROM}
+      - SMTP_SECURITY=${SMTP_SECURITY}
+    volumes:
+      - vaultwarden_data:/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - vault_net
+
+  caddy:
+    image: caddy:2
+    container_name: caddy
+    restart: unless-stopped
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    ports:
+      - 80:80
+      - 443:443
+    networks:
+      - vault_net
+
+volumes:
+  vaultwarden_data:
+  vault_db_data:
+  caddy_data:
+  caddy_config:

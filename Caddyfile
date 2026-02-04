@@ -1,0 +1,9 @@
+# Caddyfile for Vaultwarden
+
+vault.dreamit.software {
+  encode zstd gzip
+
+  reverse_proxy vaultwarden:80 {
+    header_up X-Real-IP {remote_host}
+  }
+}

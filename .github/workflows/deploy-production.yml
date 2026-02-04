@@ -1,0 +1,55 @@
+name: Deploy Vaultwarden to Hetzner (Production)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install sshpass
+        run: sudo apt-get update && sudo apt-get install -y sshpass
+
+      - name: Create .env file for Vaultwarden from GitHub Secrets
+        run: |
+          cat <<EOF > .env
+          # Vaultwarden runtime environment (created on the server from GitHub Secrets)
+          DOMAIN=https://vault.dreamit.software
+          POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+          DATABASE_URL=postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@postgres:5432/${{ secrets.POSTGRES_DB }}
+          ADMIN_TOKEN='${{ secrets.VAULT_ADMIN_TOKEN }}'
+          # SMTP (optional, used for password reset / email verification)
+          SMTP_HOST=${{ secrets.SMTP_HOST }}
+          SMTP_PORT=${{ secrets.SMTP_PORT }}
+          SMTP_USERNAME=${{ secrets.SMTP_USERNAME }}
+          SMTP_PASSWORD=${{ secrets.SMTP_PASSWORD }}
+          SMTP_FROM=${{ secrets.SMTP_FROM }}
+          SMTP_SECURITY=${{ secrets.SMTP_SECURITY }}
+          RUST_BACKTRACE=1
+          EOF
+
+      - name: Copy files to Hetzner server
+        run: |
+          sshpass -p "${{ secrets.HETZNER_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.HETZNER_USER }}@${{ secrets.HETZNER_HOST }} '
+            # Install rsync if not present (Debian uses apt)
+            if ! command -v rsync &> /dev/null; then
+              echo "Installing rsync..."
+              sudo apt update && sudo apt install -y rsync
+            fi
+          '
+          
+          sshpass -p "${{ secrets.HETZNER_PASSWORD }}" rsync -az --delete --exclude='.git' --include='.env' --include='Caddyfile' --include='docker-compose.yml' -e "ssh -o StrictHostKeyChecking=no" ./ ${{ secrets.HETZNER_USER }}@${{ secrets.HETZNER_HOST }}:${{ secrets.HETZNER_PROJECT_PATH }}
+
+      - name: Deploy on Hetzner server
+        run: |
+          sshpass -p "${{ secrets.HETZNER_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.HETZNER_USER }}@${{ secrets.HETZNER_HOST }} '
+            cd ${{ secrets.HETZNER_PROJECT_PATH }} &&
+            docker compose pull &&
+            docker compose up -d --build
+          '
