@@ -1,6 +1,8 @@
 networks:
   vault_net:
     driver: bridge
+  caddy_gateway:
+    external: true
 
 services:
   postgres:
@@ -60,6 +62,7 @@ services:
       - 443:443
     networks:
       - vault_net
+      - caddy_gateway
 
 volumes:
   vaultwarden_data:
