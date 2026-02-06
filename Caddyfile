@@ -7,3 +7,7 @@ vault.dreamit.software {
     header_up X-Real-IP {remote_host}
   }
 }
+
+estudiocivic.com {
+  reverse_proxy 157.180.65.104:3005
+}
