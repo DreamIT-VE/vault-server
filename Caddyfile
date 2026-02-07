@@ -9,5 +9,5 @@ vault.dreamit.software {
 }
 
 estudiocivic.com {
-  reverse_proxy 157.180.65.104:3005
+  reverse_proxy frontend:3005
 }
