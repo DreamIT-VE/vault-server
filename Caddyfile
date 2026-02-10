@@ -11,3 +11,19 @@ vault.dreamit.software {
 estudiocivic.com {
   reverse_proxy frontend:3005
 }
+
+smarterselfstorage.net {
+  encode zstd gzip
+
+  reverse_proxy frontend:3003 {
+    header_up X-Real-IP {remote_host}
+  }
+}
+
+api.smarterselfstorage.net {
+  encode zstd gzip
+
+  reverse_proxy nginx:8081 {
+    header_up X-Real-IP {remote_host}
+  }
+}
