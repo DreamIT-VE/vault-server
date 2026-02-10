@@ -61,10 +61,3 @@ jobs:
             docker compose pull &&
             docker compose up -d --build
           '
-
-      - name: Clean up .env file on server
-        run: |
-          sshpass -p "${{ secrets.HETZNER_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.HETZNER_USER }}@${{ secrets.HETZNER_HOST }} '
-            cd ${{ secrets.HETZNER_PROJECT_PATH }} &&
-            rm -f .env
-          '

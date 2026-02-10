@@ -15,7 +15,7 @@ estudiocivic.com {
 smarterselfstorage.net {
   encode zstd gzip
 
-  reverse_proxy frontend:3003 {
+  reverse_proxy frontend:3000 {
     header_up X-Real-IP {remote_host}
   }
 }
@@ -23,7 +23,7 @@ smarterselfstorage.net {
 api.smarterselfstorage.net {
   encode zstd gzip
 
-  reverse_proxy nginx:8081 {
+  reverse_proxy nginx:80  {
     header_up X-Real-IP {remote_host}
   }
 }
