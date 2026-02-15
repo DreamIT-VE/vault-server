@@ -19,7 +19,7 @@ estudiocivic.com {
     Cross-Origin-Resource-Policy "same-origin"
     Reporting-Endpoints "csp-endpoint=\"/csp-report-endpoint\""
     # Enforced CSP — mirrors current policy but enforced; keep 'unsafe-inline' while we phase it out
-    Content-Security-Policy "default-src 'self' https: 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; img-src 'self' data: https://dreamit-assets-worker.oaba-dev.workers.dev; style-src 'self' 'unsafe-inline'; font-src 'self' https:; frame-ancestors 'self'; report-to csp-endpoint; report-uri /csp-report-endpoint"
+    Content-Security-Policy "default-src 'self' https: 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; img-src 'self' data: https://dreamit-assets-worker.oaba-dev.workers.dev; style-src 'self' 'unsafe-inline'; font-src 'self' https:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; report-to csp-endpoint; report-uri /csp-report-endpoint"
   }
 
   # lightweight endpoint to collect CSP reports (responds 204)
